@@ -1,0 +1,52 @@
+{
+    "rules": {
+        "react/jsx-uses-react": 1,
+        "react/jsx-uses-vars": 1,
+        "react/jsx-indent-props": 2,
+        "react/jsx-no-duplicate-props": 2,
+        "react/jsx-no-undef": 2,
+        "react/no-did-mount-set-state": [2, 'allow-in-func'],
+        "react/no-did-update-set-state": 2,
+        "react/no-direct-mutation-state": 2,
+        //"react/no-multi-comp": 1, // doesn't work correctly
+        "react/no-unknown-property": 2,
+        "react/react-in-jsx-scope": 1,
+        "react/self-closing-comp": 1,
+        "react/sort-comp": [1, {order: ['mixins', 'render', 'lifecycle', 'everything-else'], groups: {render: ['/^render.*?$/']}}],
+        "react/require-extension": 2,
+
+        // Someday it would be nice to declare all props and then enforce that non-declared props not be used
+        // This will become especially useful if IDE intellisense supports prop declarations
+        //"react/prop-types": 1,
+
+        "no-mixed-spaces-and-tabs": 2,
+        "no-param-reassign": 2,
+        "no-trailing-spaces": 2,
+        "no-spaced-func": 2,
+        "no-array-constructor": 2,
+        "indent": [2, 4, {"SwitchCase": 1}],
+        "comma-dangle": [ 2, "always-multiline" ],
+        "strict": [ 2, "global" ],
+        "no-warning-comments": 1,
+        "eol-last": 2,
+        "no-shadow": 2,
+        "global-require": 2,
+        "no-mixed-requires": 2,
+        "no-path-concat": 2,
+    },
+    "env": {
+        "es6": true,
+        "node": true,
+        "browser": true
+    },
+    "extends": [
+        "eslint:recommended"
+    ],
+    "ecmaFeatures": {
+        "jsx": true,
+        "experimentalObjectRestSpread": true
+    },
+    "plugins": [
+        "react"
+    ]
+}
