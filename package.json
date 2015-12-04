@@ -5,7 +5,7 @@
   "main": "dist/react-float-affixed.js",
   "scripts": {
     "test": "false",
-    "build": "babel --presets react,es2015 src --out-dir dist",
+    "build": "babel src --out-dir dist",
     "prepublish": "npm run build"
   },
   "repository": {
