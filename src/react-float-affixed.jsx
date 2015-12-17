@@ -11,13 +11,9 @@ function viewportRect(element) {
 
 // get the current size of the viewport
 function viewportSize() {
-    var body = document.body;
-    var s = getComputedStyle(body);
-    var size = new Vec2(
-        body.offsetWidth + parseInt(s.marginLeft) + parseInt(s.marginRight),
-        body.clientHeight
-        );
-    return size;
+    var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
+    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+    return new Vec2(w, h);
 }
 
 // represents a scheme for attaching a popup rect to an anchor rect
