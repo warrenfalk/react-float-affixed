@@ -90,11 +90,29 @@ function parseAttachmentProp(prop) {
         .map(name => schemes[name.trim()])
 }
 
+var styles = {
+    required: {
+        position: 'absolute',
+    },
+    default: {
+        pointerEvents: 'auto',
+    },
+    prefab_float: {
+        boxShadow: '2px 2px 6px rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'white',
+    },
+}
+
 var FloatAffixed = React.createClass({
     render: function() {
-        var style = this.props.style || {};
-        style.position = 'absolute';
-        style.transform = 'translate('+this.state.translation.x+'px,'+this.state.translation.y+'px)';
+        var theme = this.props.prefab && styles['prefab_' + this.props.prefab];
+        var style = {
+            ...styles.default,
+            ...this.props.styles,
+            ...theme,
+            ...styles.required,
+            transform: 'translate('+this.state.translation.x+'px,'+this.state.translation.y+'px)',
+        };
         return <Escape ref="escape" to="document" style={{overflow:'hidden'}}>
                 <div
                     ref={(r)=>{this._popup = r}}
@@ -107,6 +125,7 @@ var FloatAffixed = React.createClass({
             </Escape>
     },
     propTypes: {
+        prefab: React.PropTypes.string,
         anchor: React.PropTypes.func,
         attachment: React.PropTypes.oneOfType([
             React.PropTypes.string,
