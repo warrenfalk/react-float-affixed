@@ -2,6 +2,7 @@
 var React = require('react');
 var Escape = require('react-escape');
 var {Rect,Vec2} = require('pex-geom');
+var classNames = require('classnames');
 
 // get Rect of element in viewport coordinates
 function viewportRect(element) {
@@ -116,9 +117,9 @@ var FloatAffixed = React.createClass({
         return <Escape ref="escape" to="document" style={{overflow:'hidden'}}>
                 <div
                     ref={(r)=>{this._popup = r}}
-                    className="float-affixed"
                     style={style}
                     {...this.props}
+                    className={classNames("float-affixed", this.props.className)}
                     >
                     {this.props.children}
                 </div>
