@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/warrenfalk/react-float-affixed#readme",
   "dependencies": {
+    "classnames": "^2.2.1",
     "pex-geom": "^0.14.0",
     "react-escape": ">=0.0.1"
   },
