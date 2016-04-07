@@ -1,6 +1,6 @@
 {
   "name": "react-float-affixed",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "a component to float elements in a separate layer but affixed to anchors in the main tree, useful for things like dropdowns, tooltips, menu buttons etc...",
   "main": "dist/react-float-affixed.js",
   "scripts": {
@@ -33,8 +33,8 @@
     "react-escape": ">=0.0.1"
   },
   "peerDependencies": {
-    "react": "^0.14.3",
-    "react-dom": "^0.14.3"
+    "react": ">=0.14.3",
+    "react-dom": ">=0.14.3"
   },
   "devDependencies": {
     "babel-plugin-transform-object-rest-spread": "^6.3.13",
