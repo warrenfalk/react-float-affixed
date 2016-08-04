@@ -143,6 +143,8 @@ var FloatAffixed = React.createClass({
     componentDidMount: function() {
         this._schemes = parseAttachmentProp(this.props.attachment);
         this._anchor = this.props.anchor ? this.props.anchor() : this.refs.escape.escapePoint;
+        if (!this._anchor)
+            console.error("no anchor supplied for float-affixed");
         this.withAnchorAncestors(e => e.addEventListener("scroll", this.elementDidScroll));
         window.addEventListener("resize", this.windowDidResize);
         this.reposition();
