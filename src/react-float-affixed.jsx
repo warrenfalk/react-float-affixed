@@ -106,22 +106,23 @@ var styles = {
 
 var FloatAffixed = React.createClass({
     render: function() {
-        var theme = this.props.prefab && styles['prefab_' + this.props.prefab];
-        var style = {
+        var { children, className, style, ...props } = this.props;
+        var theme = props.prefab && styles['prefab_' + this.props.prefab];
+        var popupStyle = {
             ...styles.default,
-            ...this.props.styles,
             ...theme,
+            ...style,
             ...styles.required,
             transform: 'translate('+this.state.translation.x+'px,'+this.state.translation.y+'px)',
         };
+        console.log('style', style);
         return <Escape ref="escape" to="document" style={{overflow:'hidden'}}>
                 <div
                     ref={(r)=>{this._popup = r}}
-                    style={style}
-                    {...this.props}
-                    className={classNames("float-affixed", this.props.className)}
-                    >
-                    {this.props.children}
+                    style={popupStyle}
+                    {...props}
+                    className={classNames("float-affixed", className)}>
+                    {children}
                 </div>
             </Escape>
     },
