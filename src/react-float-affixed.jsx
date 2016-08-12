@@ -51,7 +51,15 @@ function clamp(delta, pmin, pmax, space) {
     return delta;
 }
 
-var schemes = {
+function center_y(rect) {
+    return (rect.min.y + rect.max.y) * 0.5;
+}
+
+function center_x(rect) {
+    return (rect.min.x + rect.max.x) * 0.5;
+}
+
+var edgeSchemes = {
     "over": new AttachScheme('over', {
         fits: (arect, psize, viewport) => psize.y <= Math.min(arect.min.y, viewport.y),
         calcTranslation: (arect, prect, viewport) => new Vec2(
@@ -82,11 +90,43 @@ var schemes = {
     }),
 }
 
+var centerSchemes = {
+    "over": new AttachScheme('over', {
+        fits: (arect, psize, viewport) => psize.y <= Math.min(arect.min.y, viewport.y),
+        calcTranslation: (arect, prect, viewport) => new Vec2(
+            clamp(align(center_x(arect), center_x(prect)), prect.min.x, prect.max.x, viewport.x),
+            clamp(align(arect.min.y, prect.max.y), prect.min.y, prect.max.y, viewport.y)
+        ),
+    }),
+    "under": new AttachScheme('under', {
+        fits: (arect, psize, viewport) => psize.y <= (viewport.y - arect.max.y),
+        calcTranslation: (arect, prect, viewport) => new Vec2(
+            clamp(align(center_x(arect), center_x(prect)), prect.min.x, prect.max.x, viewport.x),
+            clamp(align(arect.max.y, prect.min.y), prect.min.y, prect.max.y, viewport.y)
+        ),
+    }),
+    "left": new AttachScheme('left', {
+        fits: (arect, psize, viewport) => psize.x <= Math.min(arect.min.x, viewport.x),
+        calcTranslation: (arect, prect, viewport) => new Vec2(
+            clamp(align(arect.min.x, prect.max.x), prect.min.x, prect.max.x, viewport.x),
+            clamp(align(center_y(arect), center_y(prect)), prect.min.y, prect.max.y, viewport.y)
+        ),
+    }),
+    "right": new AttachScheme('right', {
+        fits: (arect, psize, viewport) => psize.x <= (viewport.x - arect.max.x),
+        calcTranslation: (arect, prect, viewport) => new Vec2(
+            clamp(align(arect.max.x, prect.min.x), prect.min.x, prect.max.x, viewport.x),
+            clamp(align(center_y(arect), center_y(prect)), prect.min.y, prect.max.y, viewport.y)
+        ),
+    }),
+}
+
 // parses the text of an "attachment" prop into an array of scheme objects
-function parseAttachmentProp(prop) {
-    if (!prop)
+function parseEdgeAlignProps(edges, align) {
+    const schemes = align == 'center' ? centerSchemes : edgeSchemes;
+    if (!edges)
         return [schemes.under, schemes.over, schemes.right, schemes.left];
-    return prop
+    return edges
         .split(',')
         .map(name => schemes[name.trim()])
 }
@@ -115,7 +155,6 @@ var FloatAffixed = React.createClass({
             ...styles.required,
             transform: 'translate('+this.state.translation.x+'px,'+this.state.translation.y+'px)',
         };
-        console.log('style', style);
         return <Escape ref="escape" to="document" style={{overflow:'hidden'}}>
                 <div
                     ref={(r)=>{this._popup = r}}
@@ -141,7 +180,7 @@ var FloatAffixed = React.createClass({
         };
     },
     componentDidMount: function() {
-        this._schemes = parseAttachmentProp(this.props.attachment);
+        this._schemes = parseEdgeAlignProps(this.props.edges, this.props.align);
         this._anchor = this.props.anchor ? this.props.anchor() : this.refs.escape.escapePoint;
         if (!this._anchor)
             console.error("no anchor supplied for float-affixed");
@@ -150,8 +189,8 @@ var FloatAffixed = React.createClass({
         this.reposition();
     },
     componentWillReceiveProps: function(nextProps) {
-        if (this.props.attachment != nextProps.attachment) {
-            this._schemes = parseAttachmentProp(nextProps.attachment);
+        if (this.props.edges != nextProps.edges || this.props.align != nextProps.align) {
+            this._schemes = parseEdgeAlignProps(nextProps.edges, nextProps.align);
         }
     },
     componentWillUnmount: function() {
