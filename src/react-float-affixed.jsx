@@ -62,29 +62,29 @@ function center_x(rect) {
 var edgeSchemes = {
     "over": new AttachScheme('over', {
         fits: (arect, psize, viewport) => psize.y <= Math.min(arect.min.y, viewport.y),
-        calcTranslation: (arect, prect, viewport) => new Vec2(
+        calcTranslation: (arect, prect, gap, viewport) => new Vec2(
             clamp(edgeAlignMaxSpace(arect.min.x, arect.max.x, prect.min.x, prect.max.x, viewport.x), prect.min.x, prect.max.x, viewport.x),
-            clamp(align(arect.min.y, prect.max.y), prect.min.y, prect.max.y, viewport.y)
+            clamp(align(arect.min.y - gap, prect.max.y), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
     "under": new AttachScheme('under', {
         fits: (arect, psize, viewport) => psize.y <= (viewport.y - arect.max.y),
-        calcTranslation: (arect, prect, viewport) => new Vec2(
+        calcTranslation: (arect, prect, gap, viewport) => new Vec2(
             clamp(edgeAlignMaxSpace(arect.min.x, arect.max.x, prect.min.x, prect.max.x, viewport.x), prect.min.x, prect.max.x, viewport.x),
-            clamp(align(arect.max.y, prect.min.y), prect.min.y, prect.max.y, viewport.y)
+            clamp(align(arect.max.y + gap, prect.min.y), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
     "left": new AttachScheme('left', {
         fits: (arect, psize, viewport) => psize.x <= Math.min(arect.min.x, viewport.x),
-        calcTranslation: (arect, prect, viewport) => new Vec2(
-            clamp(align(arect.min.x, prect.max.x), prect.min.x, prect.max.x, viewport.x),
+        calcTranslation: (arect, prect, gap, viewport) => new Vec2(
+            clamp(align(arect.min.x - gap, prect.max.x), prect.min.x, prect.max.x, viewport.x),
             clamp(edgeAlignMaxSpace(arect.min.y, arect.max.y, prect.min.y, prect.max.y, viewport.y), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
     "right": new AttachScheme('right', {
         fits: (arect, psize, viewport) => psize.x <= (viewport.x - arect.max.x),
-        calcTranslation: (arect, prect, viewport) => new Vec2(
-            clamp(align(arect.max.x, prect.min.x), prect.min.x, prect.max.x, viewport.x),
+        calcTranslation: (arect, prect, gap, viewport) => new Vec2(
+            clamp(align(arect.max.x + gap, prect.min.x), prect.min.x, prect.max.x, viewport.x),
             clamp(edgeAlignMaxSpace(arect.min.y, arect.max.y, prect.min.y, prect.max.y, viewport.y), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
@@ -93,29 +93,29 @@ var edgeSchemes = {
 var centerSchemes = {
     "over": new AttachScheme('over', {
         fits: (arect, psize, viewport) => psize.y <= Math.min(arect.min.y, viewport.y),
-        calcTranslation: (arect, prect, viewport) => new Vec2(
+        calcTranslation: (arect, prect, gap, viewport) => new Vec2(
             clamp(align(center_x(arect), center_x(prect)), prect.min.x, prect.max.x, viewport.x),
-            clamp(align(arect.min.y, prect.max.y), prect.min.y, prect.max.y, viewport.y)
+            clamp(align(arect.min.y - gap, prect.max.y), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
     "under": new AttachScheme('under', {
         fits: (arect, psize, viewport) => psize.y <= (viewport.y - arect.max.y),
-        calcTranslation: (arect, prect, viewport) => new Vec2(
+        calcTranslation: (arect, prect, gap, viewport) => new Vec2(
             clamp(align(center_x(arect), center_x(prect)), prect.min.x, prect.max.x, viewport.x),
-            clamp(align(arect.max.y, prect.min.y), prect.min.y, prect.max.y, viewport.y)
+            clamp(align(arect.max.y + gap, prect.min.y), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
     "left": new AttachScheme('left', {
         fits: (arect, psize, viewport) => psize.x <= Math.min(arect.min.x, viewport.x),
-        calcTranslation: (arect, prect, viewport) => new Vec2(
-            clamp(align(arect.min.x, prect.max.x), prect.min.x, prect.max.x, viewport.x),
+        calcTranslation: (arect, prect, gap, viewport) => new Vec2(
+            clamp(align(arect.min.x - gap, prect.max.x), prect.min.x, prect.max.x, viewport.x),
             clamp(align(center_y(arect), center_y(prect)), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
     "right": new AttachScheme('right', {
         fits: (arect, psize, viewport) => psize.x <= (viewport.x - arect.max.x),
-        calcTranslation: (arect, prect, viewport) => new Vec2(
-            clamp(align(arect.max.x, prect.min.x), prect.min.x, prect.max.x, viewport.x),
+        calcTranslation: (arect, prect, gap, viewport) => new Vec2(
+            clamp(align(arect.max.x + gap, prect.min.x), prect.min.x, prect.max.x, viewport.x),
             clamp(align(center_y(arect), center_y(prect)), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
@@ -142,6 +142,10 @@ var styles = {
         boxShadow: '2px 2px 6px rgba(0, 0, 0, 0.5)',
         backgroundColor: 'white',
     },
+}
+
+function inflate(r, d) {
+    return {min: {x: r.min.x - d, y: r.min.y - d}, max: {x: r.max.x + d, y: r.max.y + d}}
 }
 
 var FloatAffixed = React.createClass({
@@ -216,10 +220,11 @@ var FloatAffixed = React.createClass({
         var prect = viewportRect(this._popup);
         var psize = prect.getSize();
         var arect = viewportRect(this._anchor);
+        var gap = this.props.gap || 0;
         var viewport = viewportSize();
 
         var scheme = this.chooseScheme(arect, psize, viewport);
-        var translation = scheme.calcTranslation(arect, prect, viewport);
+        var translation = scheme.calcTranslation(arect, prect, gap, viewport);
         if (!translation || (translation.x === 0 && translation.y === 0))
             return;
         this.translate(translation);
