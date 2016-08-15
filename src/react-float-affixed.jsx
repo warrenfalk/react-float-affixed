@@ -10,13 +10,6 @@ function viewportRect(element) {
     return new Rect(rect.left, rect.top, rect.width, rect.height);
 }
 
-// get the current size of the viewport
-function viewportSize() {
-    var w = Math.min(document.body.clientWidth, document.documentElement.clientWidth);
-    var h = Math.min(document.body.clientHeight, document.documentElement.clientHeight);
-    return new Vec2(w, h);
-}
-
 // represents a scheme for attaching a popup rect to an anchor rect
 function AttachScheme(name,args) {
     this.name = name;
@@ -315,7 +308,7 @@ var FloatAffixed = React.createClass({
         var psize = prect.getSize();
         var arect = viewportRect(this._anchor);
         var gap = (props.gap || 0) + (props.bridge ? bridgeSize : 0);
-        var viewport = viewportSize();
+        var viewport = this.viewportSize();
 
         var scheme = this.chooseScheme(inflate(arect, gap), psize, viewport);
         var delta = scheme.calcTranslation(arect, prect, gap, viewport);
@@ -339,6 +332,10 @@ var FloatAffixed = React.createClass({
         // otherwise, find the first scheme that fits
         var scheme = this._schemes.find(s => s.fits(arect, psize, viewport)) || this._scheme || this._schemes[0];
         return this._scheme = scheme;
+    },
+    viewportSize: function() {
+        var { width, height } = this.refs.escape.getSize();
+        return new Vec2(width, height);
     },
 });
 
