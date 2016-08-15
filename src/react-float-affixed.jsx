@@ -12,8 +12,8 @@ function viewportRect(element) {
 
 // get the current size of the viewport
 function viewportSize() {
-    var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0)
-    var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0)
+    var w = Math.min(document.body.clientWidth, document.documentElement.clientWidth);
+    var h = Math.min(document.body.clientHeight, document.documentElement.clientHeight);
     return new Vec2(w, h);
 }
 
@@ -159,7 +159,8 @@ var FloatAffixed = React.createClass({
             ...styles.required,
             transform: 'translate('+this.state.translation.x+'px,'+this.state.translation.y+'px)',
         };
-        return <Escape ref="escape" to="document" style={{overflow:'hidden'}}>
+        return (
+            <Escape ref="escape" to="viewport" style={{overflow:'hidden'}}>
                 <div
                     ref={(r)=>{this._popup = r}}
                     style={popupStyle}
@@ -168,6 +169,7 @@ var FloatAffixed = React.createClass({
                     {children}
                 </div>
             </Escape>
+        );
     },
     propTypes: {
         prefab: React.PropTypes.string,
