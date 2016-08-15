@@ -190,11 +190,14 @@ var FloatAffixed = React.createClass({
             console.error("no anchor supplied for float-affixed");
         this.withAnchorAncestors(e => e.addEventListener("scroll", this.elementDidScroll));
         window.addEventListener("resize", this.windowDidResize);
-        this.reposition();
+        this.reposition(this.props);
     },
     componentWillReceiveProps: function(nextProps) {
         if (this.props.edges != nextProps.edges || this.props.align != nextProps.align) {
             this._schemes = parseEdgeAlignProps(nextProps.edges, nextProps.align);
+        }
+        if (nextProps != this.props) {
+            this.reposition(nextProps);
         }
     },
     componentWillUnmount: function() {
@@ -211,16 +214,16 @@ var FloatAffixed = React.createClass({
         }
     },
     elementDidScroll: function() {
-        this.reposition();
+        this.reposition(this.props);
     },
     windowDidResize: function() {
-        this.reposition();
+        this.reposition(this.props);
     },
-    reposition: function() {
+    reposition: function(props) {
         var prect = viewportRect(this._popup);
         var psize = prect.getSize();
         var arect = viewportRect(this._anchor);
-        var gap = this.props.gap || 0;
+        var gap = props.gap || 0;
         var viewport = viewportSize();
 
         var scheme = this.chooseScheme(arect, psize, viewport);
