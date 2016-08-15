@@ -133,6 +133,7 @@ function parseEdgeAlignProps(edges, align) {
     return edges
         .split(',')
         .map(name => schemes[name.trim()])
+        .filter(s => s)
 }
 
 var styles = {
