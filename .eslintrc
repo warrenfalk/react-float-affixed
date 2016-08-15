@@ -12,7 +12,7 @@
         "react/no-unknown-property": 2,
         "react/react-in-jsx-scope": 1,
         "react/self-closing-comp": 1,
-        "react/sort-comp": [1, {order: ['mixins', 'render', 'lifecycle', 'everything-else'], groups: {render: ['/^render.*?$/']}}],
+        "react/sort-comp": [1, {order: ['displayName', 'mixins', 'statics', 'render', 'lifecycle', 'everything-else'], groups: {render: ['/^render.*?$/']}}],
         "react/require-extension": 2,
 
         // Someday it would be nice to declare all props and then enforce that non-declared props not be used
