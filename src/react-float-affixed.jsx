@@ -40,7 +40,7 @@ function edgeAlignMaxSpace(amin, amax, pmin, pmax, space) {
 
 // given a delta, popup bounds, and available space
 // return a new delta which keeps the popup bounds within the available space
-function clamp(delta, pmin, pmax, space) {
+function dclamp(delta, pmin, pmax, space) {
     var edgemax = pmax + delta;
     var edgemin = pmin + delta;
     // nudge back into viewport if any edges fall out of bounds
@@ -49,6 +49,10 @@ function clamp(delta, pmin, pmax, space) {
     else if (edgemax > space)
         return delta + (space - edgemax);
     return delta;
+}
+
+function clamp(value, pmin, pmax) {
+    return value < pmin ? pmin : (value > pmax ? pmax : value);
 }
 
 function center_y(rect) {
@@ -63,29 +67,29 @@ var edgeSchemes = {
     "over": new AttachScheme('over', {
         fits: (arect, psize, viewport) => psize.y <= Math.min(arect.min.y, viewport.y),
         calcTranslation: (arect, prect, gap, viewport) => new Vec2(
-            clamp(edgeAlignMaxSpace(arect.min.x, arect.max.x, prect.min.x, prect.max.x, viewport.x), prect.min.x, prect.max.x, viewport.x),
-            clamp(align(arect.min.y - gap, prect.max.y), prect.min.y, prect.max.y, viewport.y)
+            dclamp(edgeAlignMaxSpace(arect.min.x, arect.max.x, prect.min.x, prect.max.x, viewport.x), prect.min.x, prect.max.x, viewport.x),
+            dclamp(align(arect.min.y - gap, prect.max.y), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
     "under": new AttachScheme('under', {
         fits: (arect, psize, viewport) => psize.y <= (viewport.y - arect.max.y),
         calcTranslation: (arect, prect, gap, viewport) => new Vec2(
-            clamp(edgeAlignMaxSpace(arect.min.x, arect.max.x, prect.min.x, prect.max.x, viewport.x), prect.min.x, prect.max.x, viewport.x),
-            clamp(align(arect.max.y + gap, prect.min.y), prect.min.y, prect.max.y, viewport.y)
+            dclamp(edgeAlignMaxSpace(arect.min.x, arect.max.x, prect.min.x, prect.max.x, viewport.x), prect.min.x, prect.max.x, viewport.x),
+            dclamp(align(arect.max.y + gap, prect.min.y), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
     "left": new AttachScheme('left', {
         fits: (arect, psize, viewport) => psize.x <= Math.min(arect.min.x, viewport.x),
         calcTranslation: (arect, prect, gap, viewport) => new Vec2(
-            clamp(align(arect.min.x - gap, prect.max.x), prect.min.x, prect.max.x, viewport.x),
-            clamp(edgeAlignMaxSpace(arect.min.y, arect.max.y, prect.min.y, prect.max.y, viewport.y), prect.min.y, prect.max.y, viewport.y)
+            dclamp(align(arect.min.x - gap, prect.max.x), prect.min.x, prect.max.x, viewport.x),
+            dclamp(edgeAlignMaxSpace(arect.min.y, arect.max.y, prect.min.y, prect.max.y, viewport.y), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
     "right": new AttachScheme('right', {
         fits: (arect, psize, viewport) => psize.x <= (viewport.x - arect.max.x),
         calcTranslation: (arect, prect, gap, viewport) => new Vec2(
-            clamp(align(arect.max.x + gap, prect.min.x), prect.min.x, prect.max.x, viewport.x),
-            clamp(edgeAlignMaxSpace(arect.min.y, arect.max.y, prect.min.y, prect.max.y, viewport.y), prect.min.y, prect.max.y, viewport.y)
+            dclamp(align(arect.max.x + gap, prect.min.x), prect.min.x, prect.max.x, viewport.x),
+            dclamp(edgeAlignMaxSpace(arect.min.y, arect.max.y, prect.min.y, prect.max.y, viewport.y), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
 }
@@ -94,29 +98,29 @@ var centerSchemes = {
     "over": new AttachScheme('over', {
         fits: (arect, psize, viewport) => psize.y <= Math.min(arect.min.y, viewport.y),
         calcTranslation: (arect, prect, gap, viewport) => new Vec2(
-            clamp(align(center_x(arect), center_x(prect)), prect.min.x, prect.max.x, viewport.x),
-            clamp(align(arect.min.y - gap, prect.max.y), prect.min.y, prect.max.y, viewport.y)
+            dclamp(align(center_x(arect), center_x(prect)), prect.min.x, prect.max.x, viewport.x),
+            dclamp(align(arect.min.y - gap, prect.max.y), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
     "under": new AttachScheme('under', {
         fits: (arect, psize, viewport) => psize.y <= (viewport.y - arect.max.y),
         calcTranslation: (arect, prect, gap, viewport) => new Vec2(
-            clamp(align(center_x(arect), center_x(prect)), prect.min.x, prect.max.x, viewport.x),
-            clamp(align(arect.max.y + gap, prect.min.y), prect.min.y, prect.max.y, viewport.y)
+            dclamp(align(center_x(arect), center_x(prect)), prect.min.x, prect.max.x, viewport.x),
+            dclamp(align(arect.max.y + gap, prect.min.y), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
     "left": new AttachScheme('left', {
         fits: (arect, psize, viewport) => psize.x <= Math.min(arect.min.x, viewport.x),
         calcTranslation: (arect, prect, gap, viewport) => new Vec2(
-            clamp(align(arect.min.x - gap, prect.max.x), prect.min.x, prect.max.x, viewport.x),
-            clamp(align(center_y(arect), center_y(prect)), prect.min.y, prect.max.y, viewport.y)
+            dclamp(align(arect.min.x - gap, prect.max.x), prect.min.x, prect.max.x, viewport.x),
+            dclamp(align(center_y(arect), center_y(prect)), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
     "right": new AttachScheme('right', {
         fits: (arect, psize, viewport) => psize.x <= (viewport.x - arect.max.x),
         calcTranslation: (arect, prect, gap, viewport) => new Vec2(
-            clamp(align(arect.max.x + gap, prect.min.x), prect.min.x, prect.max.x, viewport.x),
-            clamp(align(center_y(arect), center_y(prect)), prect.min.y, prect.max.y, viewport.y)
+            dclamp(align(arect.max.x + gap, prect.min.x), prect.min.x, prect.max.x, viewport.x),
+            dclamp(align(center_y(arect), center_y(prect)), prect.min.y, prect.max.y, viewport.y)
         ),
     }),
 }
@@ -142,10 +146,89 @@ var styles = {
         boxShadow: '2px 2px 6px rgba(0, 0, 0, 0.5)',
         backgroundColor: 'white',
     },
+    prefab_callout: {
+        boxShadow: '2px 2px 6px rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'white',
+        borderRadius: 5,
+    },
 }
 
 function inflate(r, d) {
     return {min: {x: r.min.x - d, y: r.min.y - d}, max: {x: r.max.x + d, y: r.max.y + d}}
+}
+
+const bridgeSize = 20;
+// precalculate the breadth (size at base) and elevation (distance to peak from base)
+const bridgeBreadth = bridgeSize * 2;
+const bridgeElev = bridgeSize;
+
+
+const bridgeProps = {
+    over: (anchorRect, popupRect, translation) => ({
+        height: bridgeSize,
+        width: bridgeSize * 2,
+        bottom: -bridgeSize,
+        left: clamp(anchorRect.min.x - translation.x + (anchorRect.width * 0.5) - bridgeElev, 0, popupRect.width - bridgeBreadth),
+        transform: `translate(${bridgeBreadth * 0.5},${bridgeElev * 0.5}),rotate(0,0,0)`,
+    }),
+    under: (anchorRect, popupRect, translation) => ({
+        height: bridgeSize,
+        width: bridgeSize * 2,
+        top: -bridgeSize,
+        left: clamp(anchorRect.min.x - translation.x + (anchorRect.width * 0.5) - bridgeElev, 0, popupRect.width - bridgeBreadth),
+        transform: `translate(${bridgeBreadth * 0.5},${bridgeElev * 0.5}),rotate(180,0,0)`,
+    }),
+    left: (anchorRect, popupRect, translation) => ({
+        height: bridgeSize * 2,
+        width: bridgeSize,
+        right: -bridgeSize,
+        top: clamp(anchorRect.min.y - translation.y + (anchorRect.height * 0.5) - bridgeElev, 0, popupRect.height - bridgeBreadth),
+        transform: `translate(${bridgeElev * 0.5},${bridgeBreadth * 0.5}),rotate(-90,0,0)`,
+    }),
+    right: (anchorRect, popupRect, translation) => ({
+        height: bridgeSize * 2,
+        width: bridgeSize,
+        left: -bridgeSize,
+        top: clamp(anchorRect.min.y - translation.y + (anchorRect.height * 0.5) - bridgeElev, 0, popupRect.height - bridgeBreadth),
+        transform: `translate(${bridgeElev * 0.5},${bridgeBreadth * 0.5}),rotate(90,0,0)`,
+    }),
+}
+
+function makeBridge(state, props) {
+    // do not calculate unless we have a position for the anchor and popup
+    if (!state.anchorRect)
+        return null;
+    // get the relevant values from the state
+    const { schemeName, anchorRect, popupRect, translation } = state;
+    // calculate bridge location
+    let { transform, ...bridgeStyle } = bridgeProps[schemeName](anchorRect, popupRect, translation);
+
+    let trianglePath = "M -20.5,-11 0,9.5 20.5,-11 Z";
+
+    let trianglePathOutline = "M -19.5,-10 -20,-10 0,10 20,-10 19.5,-10 0,9.5 Z"
+    //let trianglePathOutline = "M -20,-10 0,10 20,-10 0,9.5 Z"
+
+    return (
+        <div
+            className="bridge"
+            style={{
+                position: 'absolute',
+                overflow: 'visible',
+                ...bridgeStyle,
+            }}>
+            <svg
+                style={{width: bridgeStyle.width, height: bridgeStyle.height, overflow:'visible'}}>
+                <g transform={transform}>
+                    <path
+                        style={{fill:'white'}}
+                        d={trianglePath} />
+                    <path
+                        style={{fill:'#808080'}}
+                        d={trianglePathOutline} />
+                </g>
+            </svg>
+        </div>
+    )
 }
 
 var FloatAffixed = React.createClass({
@@ -165,7 +248,11 @@ var FloatAffixed = React.createClass({
                     ref={(r)=>{this._popup = r}}
                     style={popupStyle}
                     {...props}
-                    className={classNames("float-affixed", className)}>
+                    className={classNames("float-affixed", this.state.schemeName, className)}>
+                    {this.props.bridge
+                        ? makeBridge(this.state, this.props)
+                        : null
+                    }
                     {children}
                 </div>
             </Escape>
@@ -189,6 +276,7 @@ var FloatAffixed = React.createClass({
         this._schemes = parseEdgeAlignProps(this.props.edges, this.props.align);
         this._anchor = this.props.anchor ? this.props.anchor() : this.refs.escape.escapePoint;
         if (!this._anchor)
+            /* eslint no-console: 0 */
             console.error("no anchor supplied for float-affixed");
         this.withAnchorAncestors(e => e.addEventListener("scroll", this.elementDidScroll));
         window.addEventListener("resize", this.windowDidResize);
@@ -225,29 +313,31 @@ var FloatAffixed = React.createClass({
         var prect = viewportRect(this._popup);
         var psize = prect.getSize();
         var arect = viewportRect(this._anchor);
-        var gap = props.gap || 0;
+        var gap = (props.gap || 0) + (props.bridge ? bridgeSize : 0);
         var viewport = viewportSize();
 
-        var scheme = this.chooseScheme(arect, psize, viewport);
-        var translation = scheme.calcTranslation(arect, prect, gap, viewport);
-        if (!translation || (translation.x === 0 && translation.y === 0))
+        var scheme = this.chooseScheme(inflate(arect, gap), psize, viewport);
+        var delta = scheme.calcTranslation(arect, prect, gap, viewport);
+        /*
+        if (!delta || (delta.x === 0 && delta.y === 0))
             return;
-        this.translate(translation);
+        */
+        var nextTranslation = this.state.translation.clone().add(delta);
+        this.setState({
+            translation: nextTranslation,
+            schemeName: scheme.name,
+            anchorRect: arect,
+            popupRect: prect,
+        });
     },
     chooseScheme: function(arect, psize, viewport) {
         // if there is a scheme, and it still fits, nothing to do
-        if (this._scheme && this._scheme.fits(arect, psize, viewport))
+        if (this._scheme && this._scheme.fits(arect, psize, viewport) && (this._schemes.indexOf(this._scheme) != -1))
             return this._scheme;
 
         // otherwise, find the first scheme that fits
         var scheme = this._schemes.find(s => s.fits(arect, psize, viewport)) || this._scheme || this._schemes[0];
         return this._scheme = scheme;
-    },
-    translate: function(translation) {
-        this.setTranslation(((this.state.translation && this.state.translation.clone()) || new Vec2(0, 0)).add(translation));
-    },
-    setTranslation: function(translation) {
-        this.setState({translation: translation});
     },
 });
 
