@@ -56,6 +56,11 @@ function center_x(rect) {
     return (rect.min.x + rect.max.x) * 0.5;
 }
 
+function translateRect(rect, translation) {
+    if (!rect || !translation) return rect;
+    return new Rect(rect.x + translation.x, rect.y + translation.y, rect.width, rect.height);
+}
+
 var edgeSchemes = {
     "over": new AttachScheme('over', {
         fits: (arect, psize, viewport) => psize.y <= Math.min(arect.min.y, viewport.y),
@@ -118,9 +123,21 @@ var centerSchemes = {
     }),
 }
 
+var edgeFactors = {
+    "over": { v: -1, h: 0, par: rect => ({ min: rect.y, max: rect.y + rect.height }), perp: rect => ({ min: rect.x, max: rect.x + rect.width }) },
+    "under": { v: 1, h: 0, par: rect => ({ min: rect.y, max: rect.y + rect.height }), perp: rect => ({ min: rect.x, max: rect.x + rect.width }) },
+    "left": { v: 0, h: -1, perp: rect => ({ min: rect.y, max: rect.y + rect.height }), par: rect => ({ min: rect.x, max: rect.x + rect.width }) },
+    "right": { v: 0, h: 1, perp: rect => ({ min: rect.y, max: rect.y + rect.height }), par: rect => ({ min: rect.x, max: rect.x + rect.width }) },
+    "unknown": { v: 0, h: 0, perp: () => ({ min: 0, max: 0 }), par: () => ({ min: 0, max: 0 }) },
+}
+
+function getSchemes(align) {
+    return align == 'center' ? centerSchemes : edgeSchemes;
+}
+
 // parses the text of an "attachment" prop into an array of scheme objects
 function parseEdgeAlignProps(edges, align) {
-    const schemes = align == 'center' ? centerSchemes : edgeSchemes;
+    const schemes = getSchemes(align);
     if (!edges)
         return [schemes.under, schemes.over, schemes.right, schemes.left];
     return edges
@@ -227,7 +244,7 @@ function makeBridge(state, props) {
 
 var FloatAffixed = React.createClass({
     render: function() {
-        var { children, className, style, ...props } = this.props;
+        var { render, children, className, style, ...props } = this.props;
         var theme = props.prefab && styles['prefab_' + this.props.prefab];
         var popupStyle = {
             ...styles.default,
@@ -236,6 +253,16 @@ var FloatAffixed = React.createClass({
             ...styles.required,
             transform: 'translate('+this.state.translation.x+'px,'+this.state.translation.y+'px)',
         };
+        var edgeFactor = edgeFactors[this.state.schemeName || "unknown"];
+        var translation = this.state.translation;
+        var edges = {
+            anchor: edgeFactor.perp(this.state.anchorRect),
+            popup: edgeFactor.perp(translateRect(this.state.popupRect, translation)),
+        };
+
+        if (render) {
+            children = render(this.state.schemeName, { edges: edges });
+        }
         return (
             <Escape ref="escape" to="viewport" style={{overflow:'hidden'}}>
                 <div

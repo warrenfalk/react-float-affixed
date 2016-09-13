@@ -53,9 +53,10 @@ var Outer = React.createClass({
                                 align={this.state.align}
                                 bridge={this.state.bridge}
                                 gap={this.state.gap|0}
-                                >
-                                <span>This is my popout. Popouts are for winners</span>
-                            </FloatAffixed>
+                                render={edge=>(
+                                    <span>This is my popout ({edge}). Popouts are for winners</span>
+                                )}
+                            />
                         }
                     </div>
 
