@@ -244,8 +244,8 @@ function makeBridge(state, props) {
 
 var FloatAffixed = React.createClass({
     render: function() {
-        var { render, children, className, style, ...props } = this.props;
-        var theme = props.prefab && styles['prefab_' + this.props.prefab];
+        var { prefab, edges, align, anchor, bridge, gap, render, children, className, style, ...props } = this.props;
+        var theme = prefab && styles['prefab_' + prefab];
         var popupStyle = {
             ...styles.default,
             ...theme,
@@ -255,13 +255,14 @@ var FloatAffixed = React.createClass({
         };
         var edgeFactor = edgeFactors[this.state.schemeName || "unknown"];
         var translation = this.state.translation;
-        var edges = {
-            anchor: edgeFactor.perp(this.state.anchorRect),
-            popup: edgeFactor.perp(translateRect(this.state.popupRect, translation)),
-        };
 
         if (render) {
-            children = render(this.state.schemeName, { edges: edges });
+            children = render(this.state.schemeName, {
+                edges: {
+                    anchor: edgeFactor.perp(this.state.anchorRect),
+                    popup: edgeFactor.perp(translateRect(this.state.popupRect, translation)),
+                },
+            });
         }
         return (
             <Escape ref="escape" to="viewport" style={{overflow:'hidden'}}>
