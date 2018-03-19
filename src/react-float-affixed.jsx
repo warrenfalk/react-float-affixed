@@ -290,10 +290,8 @@ class FloatAffixed extends React.Component {
             </Escape>
         );
     }
-    getInitialState() {
-        return {
-            translation: new Vec2(0,0),
-        };
+    state = {
+        translation: new Vec2(0,0),
     }
     componentDidMount = () => {
         this._schemes = parseEdgeAlignProps(this.props.edges, this.props.align);
