@@ -3,6 +3,7 @@ var React = require('react');
 var Escape = require('react-escape');
 var {Rect,Vec2} = require('pex-geom');
 var classNames = require('classnames');
+import PropTypes from 'prop-types';
 
 // get Rect of element in viewport coordinates
 function viewportRect(element) {
@@ -242,8 +243,17 @@ function makeBridge(state, props) {
     )
 }
 
-var FloatAffixed = React.createClass({
-    render: function() {
+class FloatAffixed extends React.Component {
+    static propTypes = {
+        prefab: PropTypes.string,
+        anchor: PropTypes.func,
+        attachment: PropTypes.oneOfType([
+            PropTypes.string,
+            PropTypes.arrayOf(PropTypes.string),
+        ]),
+        style: PropTypes.object,
+    }
+    render = () => {
         var { prefab, edges, align, anchor, bridge, gap, render, children, className, style, ...props } = this.props;
         var theme = prefab && styles['prefab_' + prefab];
         var popupStyle = {
@@ -279,22 +289,13 @@ var FloatAffixed = React.createClass({
                 </div>
             </Escape>
         );
-    },
-    propTypes: {
-        prefab: React.PropTypes.string,
-        anchor: React.PropTypes.func,
-        attachment: React.PropTypes.oneOfType([
-            React.PropTypes.string,
-            React.PropTypes.arrayOf(React.PropTypes.string),
-        ]),
-        style: React.PropTypes.object,
-    },
-    getInitialState: function() {
+    }
+    getInitialState() {
         return {
             translation: new Vec2(0,0),
         };
-    },
-    componentDidMount: function() {
+    }
+    componentDidMount = () => {
         this._schemes = parseEdgeAlignProps(this.props.edges, this.props.align);
         this._anchor = this.props.anchor ? this.props.anchor() : this.refs.escape.escapePoint;
         if (!this._anchor)
@@ -303,20 +304,20 @@ var FloatAffixed = React.createClass({
         this.withAnchorAncestors(e => e.addEventListener("scroll", this.elementDidScroll));
         window.addEventListener("resize", this.windowDidResize);
         this.reposition(this.props);
-    },
-    componentWillReceiveProps: function(nextProps) {
+    }
+    componentWillReceiveProps = (nextProps) => {
         if (this.props.edges != nextProps.edges || this.props.align != nextProps.align) {
             this._schemes = parseEdgeAlignProps(nextProps.edges, nextProps.align);
         }
         if (nextProps != this.props) {
             this.reposition(nextProps);
         }
-    },
-    componentWillUnmount: function() {
+    }
+    componentWillUnmount = () => {
         window.removeEventListener("resize", this.windowDidResize);
         this.withAnchorAncestors(e => e.removeEventListener("scroll", this.elementDidScroll));
-    },
-    withAnchorAncestors: function(cb) {
+    }
+    withAnchorAncestors = (cb) => {
         if (this._anchor) {
             var e = this._anchor.parentNode;
             while (e != null && e != window) {
@@ -324,14 +325,14 @@ var FloatAffixed = React.createClass({
                 e = e.parentNode;
             }
         }
-    },
-    elementDidScroll: function() {
+    }
+    elementDidScroll = () => {
         this.reposition(this.props);
-    },
-    windowDidResize: function() {
+    }
+    windowDidResize = () => {
         this.reposition(this.props);
-    },
-    reposition: function(props) {
+    }
+    reposition = (props) => {
         var prect = viewportRect(this._popup);
         var psize = prect.getSize();
         var arect = viewportRect(this._anchor);
@@ -351,8 +352,8 @@ var FloatAffixed = React.createClass({
             anchorRect: arect,
             popupRect: prect,
         });
-    },
-    chooseScheme: function(arect, psize, viewport) {
+    }
+    chooseScheme = (arect, psize, viewport) => {
         // if there is a scheme, and it still fits, nothing to do
         if (this._scheme && this._scheme.fits(arect, psize, viewport) && (this._schemes.indexOf(this._scheme) != -1))
             return this._scheme;
@@ -360,11 +361,11 @@ var FloatAffixed = React.createClass({
         // otherwise, find the first scheme that fits
         var scheme = this._schemes.find(s => s.fits(arect, psize, viewport)) || this._scheme || this._schemes[0];
         return this._scheme = scheme;
-    },
-    viewportSize: function() {
+    }
+    viewportSize = () => {
         var { width, height } = this.refs.escape.getSize();
         return new Vec2(width, height);
-    },
-});
+    }
+}
 
 module.exports = FloatAffixed;
