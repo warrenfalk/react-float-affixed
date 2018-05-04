@@ -1,9 +1,8 @@
-"use strict";
-var React = require('react');
-var Escape = require('react-escape');
-var {Rect,Vec2} = require('pex-geom');
-var classNames = require('classnames');
-import PropTypes from 'prop-types';
+import React from "react";
+import { Rect, Vec2 } from "pex-geom";
+import PropTypes from "prop-types";
+import classNames from "classnames";
+import ReactDOM from "react-dom";
 
 // get Rect of element in viewport coordinates
 function viewportRect(element) {
@@ -12,7 +11,7 @@ function viewportRect(element) {
 }
 
 // represents a scheme for attaching a popup rect to an anchor rect
-function AttachScheme(name,args) {
+function AttachScheme(name, args) {
     this.name = name;
     this.fits = args.fits;
     this.calcTranslation = args.calcTranslation;
@@ -20,7 +19,7 @@ function AttachScheme(name,args) {
 
 // given an anchor edge and a popup edge
 // return the delta necessary to align the popup edge on the anchor edge
-function align(aedge,pedge) {
+function align(aedge, pedge) {
     return aedge - pedge;
 }
 
@@ -166,7 +165,7 @@ var styles = {
 }
 
 function inflate(r, d) {
-    return {min: {x: r.min.x - d, y: r.min.y - d}, max: {x: r.max.x + d, y: r.max.y + d}}
+    return { min: { x: r.min.x - d, y: r.min.y - d }, max: { x: r.max.x + d, y: r.max.y + d } };
 }
 
 const bridgeSize = 20;
@@ -229,21 +228,25 @@ function makeBridge(state, props) {
                 ...bridgeStyle,
             }}>
             <svg
-                style={{width: bridgeStyle.width, height: bridgeStyle.height, overflow:'visible'}}>
+                style={{ width: bridgeStyle.width, height: bridgeStyle.height, overflow: "visible" }}>
                 <g transform={transform}>
                     <path
-                        style={{fill:'white'}}
+                        style={{ fill: 'white' }}
                         d={trianglePath} />
                     <path
-                        style={{fill:'#808080'}}
+                        style={{ fill: '#808080' }}
                         d={trianglePathOutline} />
                 </g>
             </svg>
         </div>
-    )
+    );
 }
 
 class FloatAffixed extends React.Component {
+    constructor(props) {
+        super(props);
+        this.el = document.createElement("div");
+    }
     static propTypes = {
         prefab: PropTypes.string,
         anchor: PropTypes.func,
@@ -251,7 +254,7 @@ class FloatAffixed extends React.Component {
             PropTypes.string,
             PropTypes.arrayOf(PropTypes.string),
         ]),
-        style: PropTypes.object,
+        style: PropTypes.object
     }
     render = () => {
         var { prefab, edges, align, anchor, bridge, gap, render, children, className, style, ...props } = this.props;
@@ -261,7 +264,10 @@ class FloatAffixed extends React.Component {
             ...theme,
             ...style,
             ...styles.required,
-            transform: 'translate('+this.state.translation.x+'px,'+this.state.translation.y+'px)',
+            position: "fixed",
+            top: 0,
+            left: 0,
+            transform: "translate(" + this.state.translation.x + "px," + this.state.translation.y + "px)",
         };
         var edgeFactor = edgeFactors[this.state.schemeName || "unknown"];
         var translation = this.state.translation;
@@ -275,33 +281,40 @@ class FloatAffixed extends React.Component {
             });
         }
         return (
-            <Escape ref="escape" to="viewport" style={{overflow:'hidden'}}>
-                <div
-                    ref={(r)=>{this._popup = r}}
-                    style={popupStyle}
-                    {...props}
-                    className={classNames("float-affixed", this.state.schemeName, className)}>
-                    {this.props.bridge
-                        ? makeBridge(this.state, this.props)
-                        : null
-                    }
-                    {children}
-                </div>
-            </Escape>
+            <React.Fragment>
+                <noscript ref={this.setAnchor} />
+                {ReactDOM.createPortal(
+                    <div
+                        ref={c => (this._popup = c)}
+                        style={popupStyle}
+                        {...props}
+                        className={classNames(
+                            "float-affixed",
+                            this.state.schemeName,
+                            className
+                        )}>
+                        {this.props.bridge ? makeBridge(this.state, this.props) : null}
+                        {children}
+                    </div>,
+                    this.el)}
+            </React.Fragment>
         );
-    }
+    };
     state = {
-        translation: new Vec2(0,0),
+        translation: new Vec2(0, 0),
     }
     componentDidMount = () => {
+        const baseElement = this.getBaseElement();
+        baseElement.appendChild(this.el);
         this._schemes = parseEdgeAlignProps(this.props.edges, this.props.align);
-        this._anchor = this.props.anchor ? this.props.anchor() : this.refs.escape.escapePoint;
         if (!this._anchor)
             /* eslint no-console: 0 */
             console.error("no anchor supplied for float-affixed");
-        this.withAnchorAncestors(e => e.addEventListener("scroll", this.elementDidScroll));
-        window.addEventListener("resize", this.windowDidResize);
-        this.reposition(this.props);
+        if (this._popup) {
+            this.withAnchorAncestors(e => e.addEventListener("scroll", this.elementDidScroll));
+            window.addEventListener("resize", this.windowDidResize);
+            this.reposition(this.props);
+        }
     }
     componentWillReceiveProps = (nextProps) => {
         if (this.props.edges != nextProps.edges || this.props.align != nextProps.align) {
@@ -312,8 +325,21 @@ class FloatAffixed extends React.Component {
         }
     }
     componentWillUnmount = () => {
+        const baseElement = this.getBaseElement();
+        baseElement.removeChild(this.el);
         window.removeEventListener("resize", this.windowDidResize);
         this.withAnchorAncestors(e => e.removeEventListener("scroll", this.elementDidScroll));
+    };
+    getBaseElement() {
+        return this.props.containerId
+            ? document.getElementById(this.props.containerId)
+            : document.body;
+    }
+    setAnchor = (c) => {
+        if (c !== null) {
+            const dom = ReactDOM.findDOMNode(c);
+            this._anchor = dom.parentNode;
+        }
     }
     withAnchorAncestors = (cb) => {
         if (this._anchor) {
@@ -360,10 +386,7 @@ class FloatAffixed extends React.Component {
         var scheme = this._schemes.find(s => s.fits(arect, psize, viewport)) || this._scheme || this._schemes[0];
         return this._scheme = scheme;
     }
-    viewportSize = () => {
-        var { width, height } = this.refs.escape.getSize();
-        return new Vec2(width, height);
-    }
+    viewportSize = () => new Vec2(window.innerWidth, window.innerHeight);
 }
 
 module.exports = FloatAffixed;
