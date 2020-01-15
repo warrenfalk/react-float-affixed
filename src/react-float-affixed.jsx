@@ -28,7 +28,7 @@ function align(aedge, pedge) {
 function edgeAlignMaxSpace(amin, amax, pmin, pmax, space) {
     let rspace = space - amax;
     let lspace = amin;
-    return (rspace <= lspace) ? amax - pmax : amin - pmin;
+    return (rspace < lspace) ? amax - pmax : amin - pmin;
 }
 
 // given a delta, popup bounds, and available space
